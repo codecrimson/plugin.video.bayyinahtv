@@ -75,10 +75,9 @@ def VIDEOLINKS(url,name):
         response = opener.open(req)
         source = response.read()
         response.close()
-        match=re.compile(b'<div class="list-thumb"><a href="(.+?)">*<span style="display:block;width:122px;height:74px;"><img alt="" src="(.+?)" /></span>*</a>*</div>*<div class="list-details">*<div class="list-title">*<a href="(.+?)">(.+?)</a>*</div>*<div class="list-info">*').findall(source)
-        print(match)
+        match=re.compile(b'<div class="list-thumb">\n        <a href="(.+?)">\n          <span style="display:block;width:122px;height:74px;"><img alt="" src="(.+?)" /></span>\n        </a>\n      </div>\n      <div class="list-details">\n        <div class="list-title">\n          <a href="(.+?)">(.+?)</a>').findall(source)
         for title,thumbnail,url,name in match:
-                addLink(name,'http://www.bayyinah.tv'+url,3,thumbnail)
+                addLink(name,'http://www.bayyinah.tv'+url,thumbnail)
         
 
                 
