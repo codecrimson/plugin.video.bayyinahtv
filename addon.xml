@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon 
+	id="plugin.video.bayyinahtv" 
+	name="Bayyinah TV" 
+	version="0.1.0" 
+	provider-name="codecrimson.com">
+
+  <requires>
+	  <import addon="xbmc.python" version="2.1.0"/>
+          <import addon="script.module.beautifulsoup4" version="4.3.1"/>
+  </requires>
+
+  <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+  </extension>
+
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Video Plugin for BayyinahTV</summary>
+  
+    <description lang="en">
+	    A video plugin for subscribers of Bayyinah TV
+
+	    codecrimson.com
+    </description>
+  
+
+    <disclaimer lang="en">Feel free to use this GPL plugin.</disclaimer>
+
+    <license>GNU GENERAL PUBLIC LICENSE. Version 3, January 2014</license>
+  
+    <platform>all</platform>
+
+    <language>en</language>
+
+    <website>http://www.codecrimson.com</website>
+
+    <source>https://github.com/codecrimson/</source>
+  </extension>
+</addon>
