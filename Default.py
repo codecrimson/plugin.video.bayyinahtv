@@ -42,11 +42,11 @@ def INDEX(url):
         source = response.read()
         response.close()
         match=re.compile(b'src="(.+?)" width="64" />\n  </div>\n\t<div class="list-details">\n\t\t<div class="list-title"><a href="(.+?)">(.+?)</a> </div>').findall(source)                
-        print(match)
         for thumbnail,url,name in match:
                 addDir(name,'http://www.bayyinah.tv'+url,2,thumbnail)
 
 def INDEX2(url):
+        print('INDEX2')
         AUTHCHECK()        
         req = urllib2.Request(url)
         req.add_header('Accept','text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
@@ -59,9 +59,64 @@ def INDEX2(url):
         source = response.read()
         response.close()
         match=re.compile(b'src="(.+?)" width="64" />\n  </div>\n\t<div class="list-details">\n\t\t<div class="list-title"><a href="(.+?)">(.+?)</a> </div>').findall(source)                
-        print(match)
         for thumbnail,url,name in match:
                 addDir(name,'http://www.bayyinah.tv'+url,3,thumbnail)
+
+def INDEX3(url):
+        print('INDEX3')
+        AUTHCHECK()        
+        req = urllib2.Request(url)
+        req.add_header('Accept','text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
+        req.add_header('Accept-Language','en-GB,en-US;q=0.8,en;q=0.6')
+        req.add_header('Connection','keep-alive')
+        req.add_header('Host','www.bayyinah.tv')		
+        req.add_header('User-Agent',header_string)
+        opener = urllib2.build_opener(urllib2.HTTPRedirectHandler(),urllib2.HTTPHandler(),urllib2.HTTPSHandler(),urllib2.HTTPCookieProcessor(cj))
+        response = opener.open(req)
+        source = response.read()
+        response.close()
+        match=re.compile(b'<div class="list-thumb">\n        <a href="(.+?)">\n          <span style="display:block;width:122px;height:74px;"><img alt="" src="(.+?)" /></span>\n        </a>\n      </div>\n      <div class="list-details">\n        <div class="list-title">\n          <a href="(.+?)">(.+?)</a>').findall(source)
+        for title,thumbnail,url,name in match:
+                PROCESSVIDEO(name,'http://www.bayyinah.tv'+url,thumbnail)
+
+
+def PROCESSVIDEO(name,url,thumbnail):
+        print('PROCESSVIDEO: '+url)
+        AUTHCHECK()        
+        req = urllib2.Request(url)
+        req.add_header('Accept','text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
+        req.add_header('Accept-Language','en-GB,en-US;q=0.8,en;q=0.6')
+        req.add_header('Connection','keep-alive')
+        req.add_header('Host','www.bayyinah.tv')		
+        req.add_header('User-Agent',header_string)
+        opener = urllib2.build_opener(urllib2.HTTPRedirectHandler(),urllib2.HTTPHandler(),urllib2.HTTPSHandler(),urllib2.HTTPCookieProcessor(cj))
+        response = opener.open(req)
+        source = response.read()
+        response.close()
+        if re.search('vimeo',source,re.IGNORECASE):
+                match=re.compile(b'<iframe src="(.+?)" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen').findall(source)
+                VIMEO('http:'+match[0],name,thumbnail,url)
+        if re.search('type="video/mp4"',source,re.IGNORECASE):
+                match=re.compile(b'<source src="(.+?)" type="video/mp4">').findall(source)
+                addLink(name,match[0],thumbnail)
+
+def VIMEO(url,name,thumbnail,referer):
+        print('VIMEO: '+url)
+        AUTHCHECK()        
+        req = urllib2.Request(url)
+        req.add_header('Accept','text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
+        req.add_header('Accept-Language','en-GB,en-US;q=0.8,en;q=0.6')
+        req.add_header('Connection','keep-alive')
+        req.add_header('Cache-Control','max-age=0')
+        req.add_header('Host','player.vimeo.com')		
+        req.add_header('User-Agent',header_string)
+        req.add_header('Referer',referer)
+        opener = urllib2.build_opener(urllib2.HTTPRedirectHandler(),urllib2.HTTPHandler(),urllib2.HTTPSHandler(),urllib2.HTTPCookieProcessor(cj))
+        response = opener.open(req)
+        source = response.read()
+        response.close()
+        match=re.compile(b'"profile":116,"origin":"ns3.pdl","url":"(.+?)"').findall(source)
+        addLink(name,match[0],thumbnail)
 
 def VIDEOLINKS(url,name):
         AUTHCHECK()        
@@ -75,7 +130,8 @@ def VIDEOLINKS(url,name):
         response = opener.open(req)
         source = response.read()
         response.close()
-        match=re.compile(b'<div class="list-thumb">\n        <a href="(.+?)">\n          <span style="display:block;width:122px;height:74px;"><img alt="" src="(.+?)" /></span>\n        </a>\n      </div>\n      <div class="list-details">\n        <div class="list-title">\n          <a href="(.+?)">(.+?)</a>').findall(source)
+        
+        match=re.compile(b'<iframe src="//(.+?)" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen').findall(source)
         for title,thumbnail,url,name in match:
                 addLink(name,'http://www.bayyinah.tv'+url,thumbnail)
         
@@ -190,8 +246,12 @@ elif mode==1:
 elif mode==2:
         print (""+url)
         INDEX2(url)
-        
+
 elif mode==3:
+        print (""+url)
+        INDEX3(url)        
+        
+elif mode==4:
         print (""+url)
         VIDEOLINKS(url,name)
 
