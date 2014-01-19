@@ -15,6 +15,7 @@ header_string = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, 
 
 #initiate the cookielib class
 cj = cookielib.LWPCookieJar()
+last_thumbnail = ''
 
 def AUTHCHECK():
         logged_in = weblogin.check_if_logged_in(__datapath__)
@@ -30,6 +31,7 @@ def CATEGORIES():
         addDir('EXTRAS','http://www.bayyinah.tv/categories/138762',1,'http://s3.amazonaws.com/kajabi-media/assets/category_images/138762/small/icon-universe.png?1372890269')
                        
 def INDEX(url):
+        print('INDEX: '+url)
         AUTHCHECK()        
         req = urllib2.Request(url)
         req.add_header('Accept','text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
@@ -44,9 +46,10 @@ def INDEX(url):
         match=re.compile(b'src="(.+?)" width="64" />\n  </div>\n\t<div class="list-details">\n\t\t<div class="list-title"><a href="(.+?)">(.+?)</a> </div>').findall(source)                
         for thumbnail,url,name in match:
                 addDir(name,'http://www.bayyinah.tv'+url,2,thumbnail)
+                last_thumbnail = thumbnail
 
 def INDEX2(url):
-        print('INDEX2')
+        print('INDEX2: '+url)
         AUTHCHECK()        
         req = urllib2.Request(url)
         req.add_header('Accept','text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
@@ -59,11 +62,17 @@ def INDEX2(url):
         source = response.read()
         response.close()
         match=re.compile(b'src="(.+?)" width="64" />\n  </div>\n\t<div class="list-details">\n\t\t<div class="list-title"><a href="(.+?)">(.+?)</a> </div>').findall(source)                
-        for thumbnail,url,name in match:
-                addDir(name,'http://www.bayyinah.tv'+url,3,thumbnail)
+        if len(match) > 0:
+                for thumbnail,url,name in match:
+                        addDir(name,'http://www.bayyinah.tv'+url,3,thumbnail)
+                return
+        else:
+                INDEX3(url)
+
+                
 
 def INDEX3(url):
-        print('INDEX3')
+        print('INDEX3: '+url)
         AUTHCHECK()        
         req = urllib2.Request(url)
         req.add_header('Accept','text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
@@ -76,8 +85,19 @@ def INDEX3(url):
         source = response.read()
         response.close()
         match=re.compile(b'<div class="list-thumb">\n        <a href="(.+?)">\n          <span style="display:block;width:122px;height:74px;"><img alt="" src="(.+?)" /></span>\n        </a>\n      </div>\n      <div class="list-details">\n        <div class="list-title">\n          <a href="(.+?)">(.+?)</a>').findall(source)
-        for title,thumbnail,url,name in match:
-                PROCESSVIDEO(name,'http://www.bayyinah.tv'+url,thumbnail)
+        print(match)
+        if len(match) > 0:
+                for title,thumbnail,url,name in match:
+                        PROCESSVIDEO(name,'http://www.bayyinah.tv'+url,thumbnail)
+                return
+        
+        match=re.compile(b'\n  \t\t\t\t<a href="(.+?)">\n  \t\t\t\t  (.+?)\n').findall(source)
+        if len(match) > 0:
+                for url,name in match:
+                        PROCESSVIDEO(name,'http://www.bayyinah.tv'+url,last_thumbnail)
+
+        
+                
 
 
 def PROCESSVIDEO(name,url,thumbnail):
@@ -94,9 +114,13 @@ def PROCESSVIDEO(name,url,thumbnail):
         source = response.read()
         response.close()
         if re.search('vimeo',source,re.IGNORECASE):
-                match=re.compile(b'<iframe src="(.+?)" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen').findall(source)
-                VIMEO('http:'+match[0],name,thumbnail,url)
-        if re.search('type="video/mp4"',source,re.IGNORECASE):
+                #match=re.compile(b'<iframe src="(.+?)" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen').findall(source)
+                match=re.compile(b'<iframe src="(.+?)" width="500"').findall(source)
+                if('http' in match[0]):
+                        VIMEO(match[0],name,thumbnail,url)
+                else:
+                        VIMEO('http:'+match[0],name,thumbnail,url)
+        elif re.search('type="video/mp4"',source,re.IGNORECASE):
                 match=re.compile(b'<source src="(.+?)" type="video/mp4">').findall(source)
                 addLink(name,match[0],thumbnail)
 
