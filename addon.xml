@@ -2,7 +2,7 @@
 <addon 
 	id="plugin.video.bayyinahtv" 
 	name="Bayyinah TV" 
-	version="0.1.0" 
+	version="0.1.1" 
 	provider-name="codecrimson.com">
 
   <requires>

@@ -115,7 +115,8 @@ def PROCESSVIDEO(name,url,thumbnail):
         response.close()
         if re.search('vimeo',source,re.IGNORECASE):
                 #match=re.compile(b'<iframe src="(.+?)" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen').findall(source)
-                match=re.compile(b'<iframe src="(.+?)" width="500"').findall(source)
+                #match=re.compile(b'<iframe src="(.+?)" width="500"').findall(source)
+                match=re.compile(b'<iframe src="(.+?)"').findall(source)
                 if('http' in match[0]):
                         VIMEO(match[0],name,thumbnail,url)
                 else:

@@ -109,7 +109,6 @@ def doLogin(cookiepath,username, password):
         
         response = opener.open(req)
         source = response.read()
-        print(source)
         from bs4 import BeautifulSoup
         soup = BeautifulSoup(source)
         token = soup.find("input", { 'name': 'authenticity_token'})
@@ -143,7 +142,6 @@ def doLogin(cookiepath,username, password):
         req.add_header('User-Agent',header_string)
         response = opener.open(req)
         source = response.read()
-        print(source)
         response.close()		
 
         #check the received html for a string that will tell us if the user is logged in
